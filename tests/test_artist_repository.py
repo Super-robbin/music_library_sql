@@ -1,5 +1,6 @@
 from lib.artist_repository import ArtistRepository
 from lib.artist import Artist
+from lib.album import Album
 
 """
 When we call ArtistRepository#all
@@ -29,6 +30,23 @@ def test_get_single_record(db_connection):
 
     artist = repository.find(3)
     assert artist == Artist(3, "Taylor Swift", "Pop")
+
+"""
+When we call ArtistRepository#find_with_albums
+We get the artist with a list of its albums, prepopulated
+"""
+
+def test_find_with_albums(db_connection):
+    db_connection.seed("seeds/music_library.sql")
+    repository = ArtistRepository(db_connection)
+    artist = repository.find_with_albums(1)
+    assert artist == Artist(1, "Pixies", "Rock", [
+        Album(1, "Doolittle", 1989, 1),
+        Album(2, "Surfer Rosa", 1988, 1),
+        Album(5, "Bossanova", 1990, 1),
+    ])
+
+# Note, you'll need to have the `__eq__` method on `Album` for this to work.
 
 """
 When we call ArtistRepository#create

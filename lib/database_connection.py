@@ -8,7 +8,7 @@ import os
 # If the below seems too complex right now, that's OK.
 # That's why we have provided it!
 class DatabaseConnection:
-    DATABASE_NAME = "DEFAULT_MAKERS_PROJECT" # <-- CHANGE THIS!
+    DATABASE_NAME = "music_library" # <-- CHANGE THIS!
 
     # This method connects to PostgreSQL using the psycopg library. We connect
     # to localhost and select the database name given in argument.
@@ -16,7 +16,10 @@ class DatabaseConnection:
         try:
             self.connection = psycopg.connect(
                 f"postgresql://localhost/{self.DATABASE_NAME}",
-                row_factory=dict_row)
+                # postgresql is linking to our database
+                row_factory=dict_row) 
+                # this line says to return a dictionary
+                # instead of a tuple
         except psycopg.OperationalError:
             raise Exception(f"Couldn't connect to the database {self.DATABASE_NAME}! " \
                     f"Did you create it using `createdb {self.DATABASE_NAME}`?")
@@ -25,11 +28,15 @@ class DatabaseConnection:
     # We use it to set up our database ready for our tests or application.
     def seed(self, sql_filename):
         self._check_connection()
+        # check the connection with the database
         if not os.path.exists(sql_filename):
             raise Exception(f"File {sql_filename} does not exist")
+        # check if the sql file exists, otherwise raises exception
         with self.connection.cursor() as cursor:
             cursor.execute(open(sql_filename, "r").read())
+            # execute the command
             self.connection.commit()
+            # commit the changes
 
     # This method executes an SQL query on the database.
     # It allows you to set some parameters too. You'll learn about this later.
@@ -39,9 +46,12 @@ class DatabaseConnection:
             cursor.execute(query, params)
             if cursor.description is not None:
                 result = cursor.fetchall()
+                # if there are records, then we fetch them all
             else:
                 result = None
+                # otherwise result = None
             self.connection.commit()
+            # then commit all the records and return them
             return result
 
     CONNECTION_MESSAGE = '' \
